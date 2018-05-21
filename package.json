@@ -1,0 +1,34 @@
+{
+  "name": "jest-duration-reporter",
+  "version": "1.0.0",
+  "description": "A jest reporter that warns you about tests exceeding a duration.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "examples": "cd examples && jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inside/jest-duration-reporter.git"
+  },
+  "keywords": [
+    "jest",
+    "duration",
+    "reporter"
+  ],
+  "author": "Yann THOMAS-GERARD",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/inside/jest-duration-reporter/issues"
+  },
+  "homepage": "https://github.com/inside/jest-duration-reporter#readme",
+  "jest": {
+    "testPathIgnorePatterns": [
+      "node_modules/",
+      "examples/"
+    ]
+  },
+  "devDependencies": {
+    "jest": "22.4.4"
+  }
+}
