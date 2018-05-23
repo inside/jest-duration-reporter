@@ -4,9 +4,9 @@ describe('Test suite #1', () => {
   describe('Test suite #1.5', () => {
     it('this is a passing test 3', (done) => setTimeout(done, 300));
     it('this is a passing test 4', (done) => setTimeout(done, 501));
-    it('this fails', () => {
-      expect(true).toBe(false)
-    })
+    // it('this fails', () => {
+      // expect(true).toBe(false)
+    // })
   })
   // it('this is a passing test 3', () => {});
   // it('fails once', () => {

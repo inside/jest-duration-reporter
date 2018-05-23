@@ -1,12 +1,16 @@
 // See signatures of the reporter's method:
 // https://github.com/facebook/jest/blob/master/types/TestRunner.js#L34
+const util = require('util')
+
 class JestDurationReporter {
   constructor (globalConfig, options) {
     this.threshold = options.threshold
+    this.messages = []
   }
 
   onRunStart (results, options) {
     const { numTotalTestSuites } = results
+
     console.log()
     console.log(`Found ${numTotalTestSuites} test suites`)
   }
@@ -17,10 +21,6 @@ class JestDurationReporter {
   }
 
   onTestResult (test, testResult, aggregatedResult) {
-    // console.log('# onTestResult')
-    // console.log('## test: ', test)
-    // console.log('## testResult: ', testResult)
-    // console.log('## aggregatedResult: ', aggregatedResult)
     const {
       testResults,
       perfStats: { start, end }
@@ -28,12 +28,27 @@ class JestDurationReporter {
     const testDuration = end - start
 
     if (testDuration > this.threshold) {
-      console.log('testResult.testFilePath: ', testResult.testFilePath)
-      console.log('lasts for: ', testDuration, 'and exceeds the threshold of:', this.threshold)
+      const message = {}
+      message.tests = []
+      message.header =
+        `This suite lasted for ${msToS(testDuration)} ` +
+        `and exceeded by ${msToS(testDuration - this.threshold)} ` +
+        `the threshold of ${msToS(this.threshold)}\n` +
+        `${testResult.testFilePath}`
+
       for (const result of testResults) {
         const { ancestorTitles, title, duration, status } = result
-        console.log('%s, %s, took: %s', [...ancestorTitles, title].join(' > '), status, duration)
+        message.tests.push(
+          util.format(
+            '%s, %s in %s',
+            [...ancestorTitles, title].join(' > '),
+            status,
+            msToS(duration)
+          )
+        )
       }
+
+      this.messages.push(message)
     }
   }
 
@@ -47,12 +62,27 @@ class JestDurationReporter {
       startTime,
     } = results
 
-    testResults.map(({ failureMessage }) => {
-      if (failureMessage) {
-        console.log(failureMessage)
+    console.log()
+
+    for (const testResult of testResults) {
+      if (testResult.failureMessage) {
+        console.log(testResult.failureMessage)
       }
-    })
-    // console.log(`Ran ${numTotalTests} tests in ${testDuration()}`)
+    }
+    if (this.messages.length > 0) {
+      for (const message of this.messages) {
+        console.log(message.header)
+
+        for (const test of message.tests) {
+          console.log(`  ${test}`)
+        }
+
+        console.log()
+      }
+    }
+
+    console.log(`Ran ${numTotalTests} tests in ${msToS(Date.now() - startTime)}`)
+
     if (numPassedTests) {
       console.log(`${numPassedTests} passing`)
     }
@@ -63,6 +93,10 @@ class JestDurationReporter {
       console.log(`${numPendingTests} pending`)
     }
   }
+}
+
+function msToS (duration) {
+  return `${duration / 1000}s`
 }
 
 module.exports = JestDurationReporter
